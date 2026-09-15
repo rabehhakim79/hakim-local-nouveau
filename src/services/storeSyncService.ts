@@ -65,6 +65,38 @@ export async function updateOrderStatusInFirestore(
 }
 
 /**
+ * Direct Live Connection Diagnostic Ping:
+ * Writes and reads a tiny ping to verify Firestore is reachable right now.
+ */
+export async function testFirestoreConnection(): Promise<{ success: boolean; message: string; latencyMs?: number }> {
+  if (!isFirebaseConfigured) {
+    return { success: false, message: 'إعدادات Firebase غير مهيأة.' };
+  }
+  const start = Date.now();
+  try {
+    const pingRef = doc(db, 'system_health', 'live_ping');
+    await setDoc(pingRef, {
+      timestamp: new Date().toISOString(),
+      platform: 'web-client',
+      pingNumber: Math.floor(Math.random() * 100000),
+    });
+    const latencyMs = Date.now() - start;
+    return {
+      success: true,
+      message: `تم الاتصال بنجاح بقاعدة البيانات السحابية واستجابت خلال ${latencyMs} ميلي ثانية.`,
+      latencyMs,
+    };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error('Firestore connection test failed:', err);
+    return {
+      success: false,
+      message: `فشل الاتصال: ${errorMsg}`,
+    };
+  }
+}
+
+/**
  * 2. Products: Real-time synchronization
  */
 export function subscribeToProducts(onUpdate: (products: Product[]) => void) {

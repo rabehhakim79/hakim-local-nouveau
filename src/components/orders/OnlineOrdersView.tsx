@@ -21,6 +21,8 @@ import {
   Share2,
   ExternalLink,
   Edit3,
+  CloudCheck,
+  RefreshCw,
 } from 'lucide-react';
 import { CustomerLocationModal } from '../maps/CustomerLocationModal';
 import { AllDeliveryOrdersMapModal } from '../maps/AllDeliveryOrdersMapModal';
@@ -31,6 +33,7 @@ import {
   getWhatsAppLocationMessage,
 } from '../../utils/mapUtils';
 import { formatMoney } from '../../utils/formatUtils';
+import { testFirestoreConnection } from '../../services/storeSyncService';
 
 interface OnlineOrdersViewProps {
   orders: OnlineOrder[];
@@ -58,6 +61,18 @@ export const OnlineOrdersView: React.FC<OnlineOrdersViewProps> = ({
   const [selectedOrderForLocation, setSelectedOrderForLocation] = useState<OnlineOrder | null>(null);
   const [isAllOrdersMapOpen, setIsAllOrdersMapOpen] = useState(false);
   const [orderForLocationPicker, setOrderForLocationPicker] = useState<OnlineOrder | null>(null);
+
+  // Test Cloud Connection State
+  const [testResult, setTestResult] = useState<{ success?: boolean; message: string } | null>(null);
+  const [isTestingCloud, setIsTestingCloud] = useState(false);
+
+  const handleTestConnection = async () => {
+    setIsTestingCloud(true);
+    setTestResult(null);
+    const res = await testFirestoreConnection();
+    setTestResult(res);
+    setIsTestingCloud(false);
+  };
 
   const deliveryWithLocationCount = orders.filter(
     (o) => o.deliveryType === 'delivery' && o.customerLocation && o.customerLocation.lat
@@ -150,7 +165,23 @@ export const OnlineOrdersView: React.FC<OnlineOrdersViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {/* Test Live Cloud Connection Button */}
+          <button
+            type="button"
+            onClick={handleTestConnection}
+            disabled={isTestingCloud}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs font-bold text-emerald-400 border border-emerald-500/40 hover:border-emerald-500 transition disabled:opacity-50 cursor-pointer shadow-sm"
+            title="فحص الاتصال بقاعدة البيانات السحابية والتأكد من إمكانية استقبال الطلبات فوراً"
+          >
+            {isTestingCloud ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <CloudCheck className="w-3.5 h-3.5" />
+            )}
+            <span>{isTestingCloud ? 'جاري الفحص...' : 'فحص الاتصال السحابي'}</span>
+          </button>
+
           <button
             type="button"
             onClick={onOpenShareModal}
@@ -167,6 +198,38 @@ export const OnlineOrdersView: React.FC<OnlineOrdersViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Cloud Diagnostic Notification if triggered */}
+      {testResult && (
+        <div
+          className={`p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs transition-all ${
+            testResult.success
+              ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-200'
+              : 'bg-rose-950/70 border-rose-500/80 text-rose-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            {testResult.success ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+            )}
+            <div>
+              <p className="font-bold text-sm">
+                {testResult.success ? 'قاعدة البيانات السحابية تعمل وتتلقى البيانات بنجاح!' : 'تنبيه الاتصال السحابي'}
+              </p>
+              <p className="text-slate-300 mt-0.5">{testResult.message}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTestResult(null)}
+            className="p-1.5 rounded-lg bg-black/20 hover:bg-black/40 text-slate-300 shrink-0"
+          >
+            إغلاق
+          </button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
