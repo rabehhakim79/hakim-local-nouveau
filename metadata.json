@@ -1,0 +1,7 @@
+{
+  "name": "نظام إدارة المحلات ونقاط البيع",
+  "description": "برنامج متكامل لإدارة المحلات التجارية ونقاط البيع (الكاشير) مع منصة متجر إلكتروني متكاملة تتيح للزبائن تصفح المنتجات والطلب أونلاين عبر الهواتف والواتساب.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
