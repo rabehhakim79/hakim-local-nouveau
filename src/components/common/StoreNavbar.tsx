@@ -36,6 +36,7 @@ interface StoreNavbarProps {
   onOpenStorefront: () => void;
   onOpenShareModal: () => void;
   onOpenLicenseModal?: () => void;
+  onOpenCloudDiagnostic?: () => void;
   isCloudSynced?: boolean;
   isCloudSyncing?: boolean;
 }
@@ -54,6 +55,7 @@ export const StoreNavbar = ({
   onOpenStorefront,
   onOpenShareModal,
   onOpenLicenseModal,
+  onOpenCloudDiagnostic,
   isCloudSynced = true,
   isCloudSyncing = false,
 }: StoreNavbarProps) => {
@@ -352,8 +354,15 @@ export const StoreNavbar = ({
 
           {/* Quick Utility Tools (Share, Sync & Install) */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Cloud Real-time Status Indicator */}
-            <CloudSyncIndicator isSynced={isCloudSynced} isSyncing={isCloudSyncing} />
+            {/* Cloud Real-time Status Indicator - Clickable to open diagnostic modal */}
+            <button
+              type="button"
+              onClick={onOpenCloudDiagnostic}
+              className="cursor-pointer transition hover:opacity-90 active:scale-95"
+              title="اضغط هنا لفحص الاتصال السحابي والتحقق من وصول البيانات"
+            >
+              <CloudSyncIndicator isSynced={isCloudSynced} isSyncing={isCloudSyncing} />
+            </button>
 
             {/* Share QR Button */}
             <button
@@ -467,6 +476,16 @@ export const StoreNavbar = ({
             >
               <Globe className="w-3.5 h-3.5 shrink-0" />
               <span>متجر الزبائن أونلاين</span>
+            </button>
+
+            {/* Mobile Cloud Status */}
+            <button
+              type="button"
+              onClick={onOpenCloudDiagnostic}
+              className="shrink-0 cursor-pointer transition hover:opacity-90 active:scale-95"
+              title="اضغط هنا لفحص الاتصال السحابي والتحقق من وصول البيانات"
+            >
+              <CloudSyncIndicator isSynced={isCloudSynced} isSyncing={isCloudSyncing} />
             </button>
           </div>
 

@@ -10,6 +10,12 @@ import {
 import { db, isFirebaseConfigured } from './firebase';
 import { Product, OnlineOrder, StoreSettings, Customer, SaleInvoice } from '../types/store';
 
+// Helper to remove undefined fields recursively so Firestore setDoc never throws or rejects silently
+function cleanDocData<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  return JSON.parse(JSON.stringify(obj, (_, v) => (v === undefined ? null : v)));
+}
+
 // Collection references
 const COL_PRODUCTS = 'products';
 const COL_ORDERS = 'online_orders';
@@ -42,10 +48,15 @@ export function subscribeToOrders(onUpdate: (orders: OnlineOrder[]) => void) {
 }
 
 export async function saveOrderToFirestore(order: OnlineOrder): Promise<void> {
-  if (!isFirebaseConfigured) return;
+  if (!isFirebaseConfigured) {
+    console.warn('Firebase is not configured, skipping cloud save');
+    return;
+  }
   try {
     const docRef = doc(db, COL_ORDERS, order.id);
-    await setDoc(docRef, order, { merge: true });
+    const cleaned = cleanDocData(order);
+    await setDoc(docRef, cleaned, { merge: true });
+    console.log(`[Cloud Sync] Order ${order.orderNumber} successfully saved to Firestore`);
   } catch (err) {
     console.error('Failed to save order to Firestore:', err);
   }
@@ -122,7 +133,7 @@ export async function saveProductToFirestore(product: Product): Promise<void> {
   if (!isFirebaseConfigured) return;
   try {
     const docRef = doc(db, COL_PRODUCTS, product.id);
-    await setDoc(docRef, product, { merge: true });
+    await setDoc(docRef, cleanDocData(product), { merge: true });
   } catch (err) {
     console.error('Failed to save product in Firestore:', err);
   }
@@ -178,7 +189,7 @@ export async function saveSettingsToFirestore(settings: StoreSettings): Promise<
   if (!isFirebaseConfigured) return;
   try {
     const docRef = doc(db, COL_SETTINGS, DOC_SETTINGS_ID);
-    await setDoc(docRef, settings, { merge: true });
+    await setDoc(docRef, cleanDocData(settings), { merge: true });
   } catch (err) {
     console.error('Failed to save settings in Firestore:', err);
   }
@@ -210,7 +221,7 @@ export async function saveCustomerToFirestore(customer: Customer): Promise<void>
   if (!isFirebaseConfigured) return;
   try {
     const docRef = doc(db, COL_CUSTOMERS, customer.id);
-    await setDoc(docRef, customer, { merge: true });
+    await setDoc(docRef, cleanDocData(customer), { merge: true });
   } catch (err) {
     console.error('Failed to save customer in Firestore:', err);
   }
@@ -243,7 +254,7 @@ export async function saveInvoiceToFirestore(invoice: SaleInvoice): Promise<void
   if (!isFirebaseConfigured) return;
   try {
     const docRef = doc(db, COL_INVOICES, invoice.id);
-    await setDoc(docRef, invoice, { merge: true });
+    await setDoc(docRef, cleanDocData(invoice), { merge: true });
   } catch (err) {
     console.error('Failed to save invoice in Firestore:', err);
   }

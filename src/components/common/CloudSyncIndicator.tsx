@@ -27,17 +27,17 @@ export const CloudSyncIndicator: React.FC<CloudSyncIndicatorProps> = ({ isSynced
       {isSyncing ? (
         <>
           <RefreshCw className="w-3 h-3 animate-spin text-blue-400 shrink-0" />
-          <span className="hidden xl:inline">مزامنة سحابية...</span>
+          <span className="text-[10px] sm:text-[11px]">مزامنة سحابية...</span>
         </>
       ) : isSynced ? (
         <>
           <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <span className="hidden xl:inline">متصل بالسحابة</span>
+          <span className="text-[10px] sm:text-[11px]">متصل بالسحابة</span>
         </>
       ) : (
         <>
           <CloudOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span className="hidden xl:inline">محلي</span>
+          <span className="text-[10px] sm:text-[11px]">محلي</span>
         </>
       )}
     </div>

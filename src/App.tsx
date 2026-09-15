@@ -31,6 +31,7 @@ import { OfflineIndicator } from './components/common/OfflineIndicator';
 import { AdminPinModal } from './components/common/AdminPinModal';
 import { LicenseExpiredModal } from './components/common/LicenseExpiredModal';
 import { LicenseInfoModal } from './components/common/LicenseInfoModal';
+import { CloudDiagnosticModal } from './components/common/CloudDiagnosticModal';
 import { getLicenseStatus } from './utils/license';
 import {
   subscribeToOrders,
@@ -180,6 +181,7 @@ export default function App() {
   // Cloud Synchronization Status
   const [isCloudSynced, setIsCloudSynced] = useState<boolean>(isFirebaseConfigured);
   const [isCloudSyncing, setIsCloudSyncing] = useState<boolean>(false);
+  const [isCloudDiagnosticOpen, setIsCloudDiagnosticOpen] = useState<boolean>(false);
 
   // Real-time Cloud Synchronization Subscriptions (Firestore)
   useEffect(() => {
@@ -733,6 +735,7 @@ export default function App() {
         onOpenStorefront={() => setViewMode('storefront')}
         onOpenShareModal={() => setIsShareModalOpen(true)}
         onOpenLicenseModal={() => setIsLicenseInfoOpen(true)}
+        onOpenCloudDiagnostic={() => setIsCloudDiagnosticOpen(true)}
         isCloudSynced={isCloudSynced}
         isCloudSyncing={isCloudSyncing}
       />
@@ -871,6 +874,14 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Cloud Diagnostic Modal */}
+      <CloudDiagnosticModal
+        isOpen={isCloudDiagnosticOpen}
+        onClose={() => setIsCloudDiagnosticOpen(false)}
+        isCloudSynced={isCloudSynced}
+        isCloudSyncing={isCloudSyncing}
+      />
 
       {/* License Info Modal */}
       {isLicenseInfoOpen && (
